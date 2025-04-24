@@ -37,7 +37,7 @@ authorityKeyIdentifier = keyid, issuer
 [ v3_ca ]
 subjectKeyIdentifier   = hash
 authorityKeyIdentifier = keyid:always,issuer:always
-basicConstraints       = CA:true
+basicConstraints       = critical,CA:true
 keyUsage               = critical, digitalSignature, cRLSign, keyCertSign
 
 [ policy_any ]

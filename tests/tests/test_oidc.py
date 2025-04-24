@@ -9,6 +9,8 @@ import requests
 import inspect
 import time
 
+CA = "/etc/pki/ca-trust/source/anchors/FederationComponentsTesting.crt"
+
 
 @pytest.mark.topology(KnownTopology.FC)
 def test_http_get_ca(httpd: Httpd, keycloak: Keycloak):
@@ -18,7 +20,7 @@ def test_http_get_ca(httpd: Httpd, keycloak: Keycloak):
     This test is here just to identify that the
     containers are deployed and reachable
     """
-    r = requests.get(f"https://{httpd.host.hostname}/public/", verify=False)
+    r = requests.get(f"https://{httpd.host.hostname}/public/", verify=CA)
     assert r.status_code >= 200 and r.status_code < 300, "Apache httpd web server is not reachable. Test environment is broken."
 
 
@@ -30,7 +32,7 @@ def test_http_get_keycloack(httpd: Httpd, keycloak: Keycloak):
     This test is here just to identify that the
     containers are deployed and reachable
     """
-    r = requests.get(f"https://{keycloak.host.hostname}:8443/", verify=False)
+    r = requests.get(f"https://{keycloak.host.hostname}:8443/", verify=CA)
     assert r.status_code >= 200 and r.status_code < 499, "Keycloack server is not reachable. Test environment is broken."
 
 
@@ -67,10 +69,10 @@ def test_new_cve(httpd: Httpd, keycloak: Keycloak):
     httpd.fs.write("/etc/httpd/conf.d/oidc.conf", inspect.cleandoc(cfg))
     httpd.prepare_httpd()
     try:
-        r = requests.post(f"https://{httpd.host.hostname}/private/", verify=False)
+        r = requests.post(f"https://{httpd.host.hostname}/private/", verify=CA)
         assert r.status_code != 0
     except Exception:
-        pass
+        assert False, "Exception while performing POST request without data"
     time.sleep(1)
     status = httpd.host.conn.run("supervisorctl status httpd")
     assert "RUNNING" in status.stdout, "Apache httpd is not running any more"
