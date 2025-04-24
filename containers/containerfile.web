@@ -1,0 +1,30 @@
+FROM docker.io/rockylinux/rockylinux:9
+
+RUN dnf -y --nodocs install epel-release && \
+    dnf -y --nodocs install \
+        supervisor \
+        iproute \
+        mc \
+        tcpdump \
+        httpd \
+        mod_ssl \
+        mod_http2 \
+        mod_auth_openidc && \
+    dnf -y clean all
+COPY html /var/www/html
+COPY conf.d /etc/httpd/conf.d
+COPY --chmod=0755 entrypoint /usr/local/bin
+COPY --chmod=0644 supervisord.conf /etc/
+COPY --chmod=644 ca/rootCA.crt /etc/pki/ca-trust/source/anchors/
+COPY --chmod=644 ca/rootCA.crt /var/www/html/public/
+COPY --chmod=644 ca/web.crt /etc/pki/tls/certs/
+COPY --chmod=600 ca/web.key /etc/pki/tls/private/
+RUN update-ca-trust && \
+    sed -i -r 's#^\s*SSLCertificateFile.*$#SSLCertificateFile /etc/pki/tls/certs/web.crt#' /etc/httpd/conf.d/ssl.conf && \
+    sed -i -r 's#^(\s*SSLCertificateKeyFile).*$#SSLCertificateKeyFile /etc/pki/tls/private/web.key#' /etc/httpd/conf.d/ssl.conf && \
+    sed -i -r 's#^(\s*ErrorLog).*$#ErrorLog /proc/self/fd/1#' /etc/httpd/conf.d/ssl.conf && \
+    sed -i -r 's#^(\s*TransferLog).*$#TransferLog /proc/self/fd/1#' /etc/httpd/conf.d/ssl.conf && \
+    true
+
+EXPOSE 80/tcp 443/tcp
+ENTRYPOINT [ "/usr/local/bin/entrypoint" ]

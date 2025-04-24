@@ -1,0 +1,26 @@
+---
+name: fc_testing
+services:
+  web:
+    build:
+      context: .
+      dockerfile: containerfile.web
+    hostname: web
+    container_name: web
+  keycloak:
+    build:
+      context: .
+      dockerfile: containerfile.keycloak
+    hostname: keycloak
+    container_name: keycloak
+    command: ["start"]
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: Secret123
+      KC_HOSTNAME: keycloak
+      KC_LOG_LEVEL: debug
+      KC_HTTPS_CERTIFICATE_FILE: /etc/pki/tls/certs/keycloak.crt
+      KC_HTTPS_CERTIFICATE_KEY_FILE: /etc/pki/tls/private/keycloak.key
+      KC_HTTPS_TRUST_STORE_FILE: /etc/pki/tls/certs/truststore.keystore
+      KC_HTTPS_TRUST_STORE_PASSWORD: Secret123
+      KC_HTTP_RELATIVE_PATH: /auth

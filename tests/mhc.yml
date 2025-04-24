@@ -1,0 +1,17 @@
+domains:
+- id: fc
+  hosts:
+  - hostname: keycloak
+    role: keycloak
+    conn:
+      type: podman
+      name: keycloak
+      container: keycloak
+      sudo: False
+  - hostname: web
+    role: httpd
+    conn:
+      type: podman
+      name: web
+      container: web
+      sudo: False

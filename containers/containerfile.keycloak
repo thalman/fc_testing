@@ -1,0 +1,10 @@
+FROM quay.io/keycloak/keycloak:latest
+
+COPY --chmod=644 ca/rootCA.crt /etc/pki/ca-trust/source/anchors/
+COPY --chmod=644 ca/keycloak.crt /etc/pki/tls/certs/
+COPY --chmod=644 ca/keycloak.key /etc/pki/tls/private/
+COPY --chmod=644 ca/truststore.keystore /etc/pki/tls/certs/
+
+# Maybe redundant?
+#RUN update-ca-trust && \
+#    true
