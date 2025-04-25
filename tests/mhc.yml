@@ -15,3 +15,5 @@ domains:
       name: web
       container: web
       sudo: False
+    artifacts:
+      - /var/log/httpd/*
